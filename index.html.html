@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Asistencia de Entrenadores</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Teko:wght@500;600;700&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --pitch:#183B2E;
+    --pitch-dark:#0F281F;
+    --chalk:#F4F1E6;
+    --chalk-dim:#E4E0D0;
+    --line:#3C6650;
+    --presente:#5FA85A;
+    --presente-dark:#2F6B2C;
+    --ausente:#C4432E;
+    --ausente-dark:#8C2C1C;
+    --amber:#E0A83C;
+    --ink:#16241D;
+    --muted:#7C8C82;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    min-height:100vh;
+    background:var(--pitch-dark);
+    background-image:
+      repeating-linear-gradient(0deg, rgba(255,255,255,0.025) 0, rgba(255,255,255,0.025) 2px, transparent 2px, transparent 42px);
+    font-family:'Work Sans', sans-serif;
+    color:var(--chalk);
+    display:flex;
+    justify-content:center;
+    padding:32px 16px 64px;
+  }
+  .wrap{ width:100%; max-width:640px; }
+  .eyebrow{
+    font-family:'Teko', sans-serif;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--amber);
+    font-size:15px;
+    font-weight:600;
+    margin:0 0 4px;
+  }
+  h1{
+    font-family:'Teko', sans-serif;
+    font-weight:700;
+    font-size:44px;
+    line-height:1;
+    margin:0 0 24px;
+    color:var(--chalk);
+    letter-spacing:0.01em;
+  }
+
+  /* ---------- LOCK SCREEN ---------- */
+  .lockcard{
+    background:var(--pitch);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:36px 28px;
+    text-align:center;
+    max-width:380px;
+    margin:60px auto 0;
+  }
+  .lockicon{
+    width:52px; height:52px; margin:0 auto 18px;
+    border:2px solid var(--amber);
+    border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-size:24px;
+  }
+  .lockcard p{ color:var(--chalk-dim); font-size:14px; margin:8px 0 22px; line-height:1.5;}
+  .lockcard input{
+    width:100%;
+    background:var(--pitch-dark);
+    border:1px solid var(--line);
+    color:var(--chalk);
+    font-family:'Teko', sans-serif;
+    font-size:26px;
+    letter-spacing:0.3em;
+    text-align:center;
+    padding:12px;
+    border-radius:4px;
+    outline:none;
+  }
+  .lockcard input:focus{ border-color:var(--amber); }
+  .lockbtn{
+    margin-top:16px;
+    width:100%;
+    padding:12px;
+    background:var(--amber);
+    color:var(--pitch-dark);
+    border:none;
+    border-radius:4px;
+    font-family:'Teko', sans-serif;
+    font-size:18px;
+    font-weight:600;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    cursor:pointer;
+  }
+  .lockbtn:active{ transform:scale(0.98); }
+  .lockerr{ color:var(--ausente); font-size:13px; margin-top:10px; min-height:16px; }
+  .lockhint{ font-size:11px; color:var(--muted); margin-top:18px; line-height:1.5; }
+
+  /* ---------- MAIN SCREEN ---------- */
+  .topbar{ display:flex; justify-content:flex-end; margin-bottom:16px; }
+  .logout{
+    background:none; border:1px solid var(--line); color:var(--chalk-dim);
+    font-size:12px; padding:7px 12px; border-radius:4px; cursor:pointer;
+  }
+
+  /* ---------- CALENDAR ---------- */
+  .calendar{
+    background:var(--pitch);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:18px;
+    margin-bottom:24px;
+  }
+  .cal-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+  .cal-title{ font-family:'Teko', sans-serif; font-size:26px; font-weight:600; letter-spacing:0.02em; text-transform:capitalize; }
+  .cal-nav{ display:flex; gap:8px; }
+  .cal-nav button{
+    background:var(--pitch-dark); border:1px solid var(--line); color:var(--chalk);
+    width:30px; height:30px; border-radius:4px; cursor:pointer; font-size:16px;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .cal-nav button:hover{ border-color:var(--amber); }
+  .cal-today{
+    background:var(--pitch-dark); border:1px solid var(--line); color:var(--chalk-dim);
+    font-size:11px; padding:0 10px; border-radius:4px; cursor:pointer;
+    text-transform:uppercase; letter-spacing:0.06em;
+  }
+  .cal-grid{ display:grid; grid-template-columns:repeat(7,1fr); gap:4px; }
+  .cal-dow{ text-align:center; font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:0.06em; padding-bottom:6px; }
+  .cal-day{
+    position:relative;
+    aspect-ratio:1;
+    display:flex; align-items:center; justify-content:center;
+    background:var(--pitch-dark);
+    border:1px solid transparent;
+    border-radius:4px;
+    font-size:14px;
+    color:var(--chalk-dim);
+    cursor:pointer;
+  }
+  .cal-day:hover{ border-color:var(--line); }
+  .cal-day.other{ color:var(--muted); opacity:0.35; cursor:default; }
+  .cal-day.other:hover{ border-color:transparent; }
+  .cal-day.today{ border-color:var(--amber); color:var(--amber); }
+  .cal-day.selected{ background:var(--amber); color:var(--pitch-dark); font-weight:600; }
+  .cal-day .dot{
+    position:absolute; bottom:4px; left:50%; transform:translateX(-50%);
+    width:4px; height:4px; border-radius:50%; background:var(--presente);
+  }
+  .cal-day.selected .dot{ background:var(--pitch-dark); }
+  .cal-selected-label{ text-align:center; font-size:12px; color:var(--muted); margin-top:12px; text-transform:capitalize; }
+
+  .scoreboard{
+    display:flex;
+    background:var(--pitch);
+    border:1px solid var(--line);
+    border-radius:6px;
+    overflow:hidden;
+    margin-bottom:24px;
+  }
+  .score-cell{ flex:1; text-align:center; padding:16px 8px; }
+  .score-cell + .score-cell{ border-left:1px solid var(--line); }
+  .score-num{ font-family:'Teko', sans-serif; font-size:38px; font-weight:700; line-height:1; }
+  .score-label{ font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); margin-top:4px; }
+  .score-cell.p .score-num{ color:var(--presente); }
+  .score-cell.a .score-num{ color:var(--ausente); }
+  .score-cell.t .score-num{ color:var(--amber); }
+
+  .roster{ display:flex; flex-direction:column; gap:8px; }
+  .row{
+    display:flex; align-items:center; gap:12px;
+    background:var(--pitch);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:10px 12px;
+  }
+  .num{
+    font-family:'Teko', sans-serif; font-size:20px; font-weight:600;
+    color:var(--pitch-dark); background:var(--chalk-dim);
+    width:32px; height:32px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  }
+  .name{ flex:1; font-size:15px; font-weight:500; min-width:80px; }
+  .toggle{ display:flex; border:1px solid var(--line); border-radius:4px; overflow:hidden; flex-shrink:0; }
+  .toggle button{
+    border:none; background:var(--pitch-dark); color:var(--chalk-dim);
+    font-family:'Teko', sans-serif; font-size:14px; font-weight:600;
+    letter-spacing:0.06em; text-transform:uppercase;
+    padding:7px 12px; cursor:pointer;
+  }
+  .toggle button.active.p{ background:var(--presente); color:var(--pitch-dark); }
+  .toggle button.active.a{ background:var(--ausente); color:var(--chalk); }
+  .rm{ background:none; border:none; color:var(--muted); font-size:16px; cursor:pointer; padding:4px; flex-shrink:0; }
+  .rm:hover{ color:var(--ausente); }
+
+  .addrow{ display:flex; gap:8px; margin-top:16px; }
+  .addrow input{
+    flex:1; background:var(--pitch); border:1px solid var(--line); color:var(--chalk);
+    padding:10px 12px; border-radius:4px; font-size:14px; outline:none;
+  }
+  .addrow input:focus{ border-color:var(--amber); }
+  .addrow button{
+    background:var(--amber); color:var(--pitch-dark); border:none;
+    padding:0 18px; border-radius:4px; font-family:'Teko', sans-serif;
+    font-size:16px; font-weight:600; cursor:pointer; text-transform:uppercase;
+  }
+
+  .empty{ text-align:center; color:var(--muted); font-size:13px; padding:32px 0; }
+  .foot{ margin-top:22px; font-size:12px; color:var(--muted); text-align:center; }
+  .hidden{ display:none !important; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- LOCK SCREEN -->
+  <div id="lockScreen">
+    <p class="eyebrow">Panel restringido</p>
+    <h1>Asistencia de entrenadores</h1>
+    <div class="lockcard">
+      <div class="lockicon">&#128274;</div>
+      <p>Solo el entrenador jefe puede pasar lista.<br>Ingresa el PIN de acceso.</p>
+      <input id="pinInput" type="password" inputmode="numeric" maxlength="6" placeholder="••••">
+      <button class="lockbtn" id="pinBtn">Entrar</button>
+      <div class="lockerr" id="pinErr"></div>
+      <div class="lockhint">PIN por defecto: 2026. Se puede cambiar editando el archivo (variable CHIEF_PIN en el código).</div>
+    </div>
+  </div>
+
+  <!-- MAIN SCREEN -->
+  <div id="mainScreen" class="hidden">
+    <p class="eyebrow">Entrenador jefe</p>
+    <h1>Asistencia de entrenadores</h1>
+
+    <div class="topbar">
+      <button class="logout" id="logoutBtn">Cerrar sesión</button>
+    </div>
+
+    <div class="calendar">
+      <div class="cal-head">
+        <div class="cal-nav">
+          <button id="prevMonth" aria-label="Mes anterior">‹</button>
+          <button id="nextMonth" aria-label="Mes siguiente">›</button>
+        </div>
+        <div class="cal-title" id="calTitle"></div>
+        <button class="cal-today" id="calToday">Hoy</button>
+      </div>
+      <div class="cal-grid" id="calGrid"></div>
+      <div class="cal-selected-label" id="calSelectedLabel"></div>
+    </div>
+
+    <div class="scoreboard">
+      <div class="score-cell p"><div class="score-num" id="countP">0</div><div class="score-label">Presentes</div></div>
+      <div class="score-cell a"><div class="score-num" id="countA">0</div><div class="score-label">Ausentes</div></div>
+      <div class="score-cell t"><div class="score-num" id="countT">0</div><div class="score-label">Total</div></div>
+    </div>
+
+    <div class="roster" id="roster"></div>
+    <div class="empty hidden" id="emptyMsg">Todavía no hay entrenadores en la lista. Agrega el primero abajo.</div>
+
+    <div class="addrow">
+      <input type="text" id="newName" placeholder="Nombre del entrenador">
+      <button id="addBtn">Agregar</button>
+    </div>
+
+    <div class="foot">Los datos se guardan automáticamente y quedan disponibles la próxima vez que entres con el PIN.</div>
+  </div>
+</div>
+
+<script>
+const CHIEF_PIN = "2026";
+const DEFAULT_COACHES = ["Laura","Vale","Chiqui","Riccardo","Mamel","Cata","Keko","Tomas","Coni","Benja","Tuto","Pato","Irene","Xavi","Rene","Enzo","Felipe","Ivana"];
+
+const lockScreen = document.getElementById('lockScreen');
+const mainScreen = document.getElementById('mainScreen');
+const pinInput = document.getElementById('pinInput');
+const pinBtn = document.getElementById('pinBtn');
+const pinErr = document.getElementById('pinErr');
+const calGrid = document.getElementById('calGrid');
+const calTitle = document.getElementById('calTitle');
+const calSelectedLabel = document.getElementById('calSelectedLabel');
+const prevMonthBtn = document.getElementById('prevMonth');
+const nextMonthBtn = document.getElementById('nextMonth');
+const calTodayBtn = document.getElementById('calToday');
+const roster = document.getElementById('roster');
+const emptyMsg = document.getElementById('emptyMsg');
+const newName = document.getElementById('newName');
+const addBtn = document.getElementById('addBtn');
+const logoutBtn = document.getElementById('logoutBtn');
+const countP = document.getElementById('countP');
+const countA = document.getElementById('countA');
+const countT = document.getElementById('countT');
+
+let coaches = [];
+let attendance = {};
+let markedDates = new Set();
+
+const today = new Date();
+function todayStr(){ return dateToStr(today); }
+function dateToStr(d){
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+let currentDate = todayStr();
+let viewYear = today.getFullYear();
+let viewMonth = today.getMonth();
+
+const DOW = ['L','M','M','J','V','S','D'];
+const MONTHS = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+
+async function refreshMarkedDates(){
+  markedDates = new Set();
+  try{
+    const res = await window.storage.list('attendance:', true);
+    if(res && res.keys){
+      res.keys.forEach(k => markedDates.add(k.replace('attendance:', '')));
+    }
+  }catch(e){}
+}
+
+function renderCalendar(){
+  calTitle.textContent = MONTHS[viewMonth] + ' ' + viewYear;
+  calGrid.innerHTML = '';
+  DOW.forEach(d => {
+    const el = document.createElement('div');
+    el.className = 'cal-dow';
+    el.textContent = d;
+    calGrid.appendChild(el);
+  });
+  const firstOfMonth = new Date(viewYear, viewMonth, 1);
+  let startOffset = firstOfMonth.getDay() - 1;
+  if(startOffset < 0) startOffset = 6;
+  const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
+  const daysInPrevMonth = new Date(viewYear, viewMonth, 0).getDate();
+
+  for(let i = 0; i < startOffset; i++){
+    const dayNum = daysInPrevMonth - startOffset + i + 1;
+    const el = document.createElement('div');
+    el.className = 'cal-day other';
+    el.textContent = dayNum;
+    calGrid.appendChild(el);
+  }
+  for(let day = 1; day <= daysInMonth; day++){
+    const d = new Date(viewYear, viewMonth, day);
+    const str = dateToStr(d);
+    const el = document.createElement('div');
+    el.className = 'cal-day';
+    if(str === todayStr()) el.classList.add('today');
+    if(str === currentDate) el.classList.add('selected');
+    el.textContent = day;
+    if(markedDates.has(str)){
+      const dot = document.createElement('div');
+      dot.className = 'dot';
+      el.appendChild(dot);
+    }
+    el.addEventListener('click', async () => {
+      currentDate = str;
+      await loadAttendance(currentDate);
+      renderCalendar();
+      renderRoster();
+    });
+    calGrid.appendChild(el);
+  }
+  const totalCells = startOffset + daysInMonth;
+  const trailing = (7 - (totalCells % 7)) % 7;
+  for(let i = 1; i <= trailing; i++){
+    const el = document.createElement('div');
+    el.className = 'cal-day other';
+    el.textContent = i;
+    calGrid.appendChild(el);
+  }
+
+  const sel = new Date(currentDate + 'T00:00:00');
+  calSelectedLabel.textContent = 'Pasando lista del ' + sel.getDate() + ' de ' + MONTHS[sel.getMonth()] + ' de ' + sel.getFullYear();
+}
+
+prevMonthBtn.addEventListener('click', () => {
+  viewMonth--;
+  if(viewMonth < 0){ viewMonth = 11; viewYear--; }
+  renderCalendar();
+});
+nextMonthBtn.addEventListener('click', () => {
+  viewMonth++;
+  if(viewMonth > 11){ viewMonth = 0; viewYear++; }
+  renderCalendar();
+});
+calTodayBtn.addEventListener('click', async () => {
+  viewYear = today.getFullYear();
+  viewMonth = today.getMonth();
+  currentDate = todayStr();
+  await loadAttendance(currentDate);
+  renderCalendar();
+  renderRoster();
+});
+
+async function loadCoaches(){
+  try{
+    const res = await window.storage.get('coaches', true);
+    coaches = res ? JSON.parse(res.value) : [];
+  }catch(e){ coaches = []; }
+  if(coaches.length === 0){
+    coaches = [...DEFAULT_COACHES];
+    await saveCoaches();
+  }
+}
+async function saveCoaches(){
+  try{ await window.storage.set('coaches', JSON.stringify(coaches), true); }catch(e){}
+}
+async function loadAttendance(date){
+  try{
+    const res = await window.storage.get('attendance:' + date, true);
+    attendance = res ? JSON.parse(res.value) : {};
+  }catch(e){ attendance = {}; }
+}
+async function saveAttendance(){
+  try{ await window.storage.set('attendance:' + currentDate, JSON.stringify(attendance), true); }catch(e){}
+  if(Object.keys(attendance).length > 0) markedDates.add(currentDate);
+  else markedDates.delete(currentDate);
+  renderCalendar();
+}
+
+function renderRoster(){
+  roster.innerHTML = '';
+  if(coaches.length === 0){
+    emptyMsg.classList.remove('hidden');
+  } else {
+    emptyMsg.classList.add('hidden');
+  }
+  coaches.forEach((name, idx) => {
+    const status = attendance[name] || null;
+    const row = document.createElement('div');
+    row.className = 'row';
+    row.innerHTML = `
+      <div class="num">${idx+1}</div>
+      <div class="name">${escapeHtml(name)}</div>
+      <div class="toggle">
+        <button class="p ${status==='presente' ? 'active p' : ''}" data-name="${escapeHtml(name)}" data-status="presente">Presente</button>
+        <button class="a ${status==='ausente' ? 'active a' : ''}" data-name="${escapeHtml(name)}" data-status="ausente">Ausente</button>
+      </div>
+      <button class="rm" data-remove="${escapeHtml(name)}" aria-label="Quitar entrenador">✕</button>
+    `;
+    roster.appendChild(row);
+  });
+  updateCounts();
+}
+
+function updateCounts(){
+  let p = 0, a = 0;
+  coaches.forEach(name => {
+    if(attendance[name] === 'presente') p++;
+    if(attendance[name] === 'ausente') a++;
+  });
+  countP.textContent = p;
+  countA.textContent = a;
+  countT.textContent = coaches.length;
+}
+
+function escapeHtml(str){
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
+}
+
+roster.addEventListener('click', async (e) => {
+  const btn = e.target.closest('button');
+  if(!btn) return;
+  if(btn.dataset.remove !== undefined){
+    coaches = coaches.filter(c => c !== btn.dataset.remove);
+    delete attendance[btn.dataset.remove];
+    await saveCoaches();
+    await saveAttendance();
+    renderRoster();
+    return;
+  }
+  if(btn.dataset.name){
+    const name = btn.dataset.name;
+    const status = btn.dataset.status;
+    attendance[name] = attendance[name] === status ? null : status;
+    if(attendance[name] === null) delete attendance[name];
+    await saveAttendance();
+    renderRoster();
+  }
+});
+
+addBtn.addEventListener('click', addCoach);
+newName.addEventListener('keydown', (e) => { if(e.key === 'Enter') addCoach(); });
+
+async function addCoach(){
+  const name = newName.value.trim();
+  if(!name) return;
+  if(coaches.includes(name)){ newName.value=''; return; }
+  coaches.push(name);
+  newName.value = '';
+  await saveCoaches();
+  renderRoster();
+}
+
+async function unlock(){
+  if(pinInput.value === CHIEF_PIN){
+    lockScreen.classList.add('hidden');
+    mainScreen.classList.remove('hidden');
+    pinErr.textContent = '';
+    await loadCoaches();
+    await loadAttendance(currentDate);
+    await refreshMarkedDates();
+    renderCalendar();
+    renderRoster();
+  } else {
+    pinErr.textContent = 'PIN incorrecto. Intenta de nuevo.';
+    pinInput.value = '';
+  }
+}
+pinBtn.addEventListener('click', unlock);
+pinInput.addEventListener('keydown', (e) => { if(e.key === 'Enter') unlock(); });
+
+logoutBtn.addEventListener('click', () => {
+  mainScreen.classList.add('hidden');
+  lockScreen.classList.remove('hidden');
+  pinInput.value = '';
+});
+</script>
+</body>
+</html>
